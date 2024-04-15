@@ -9,7 +9,8 @@ const silent = () => undefined;
 class App {
   useHeader(req, res) {
     const headers = new Headers(req.headers);
-    const origin = headers.get('origin') || `${req.protocol}://${headers.get('host')}`;
+    const protocol = req.socket.encrypted ? 'https' : 'http';
+    const origin = headers.get('origin') || `${protocol}://${headers.get('host')}`;
     res.setHeader('ETag', 'false');
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, HEAD');
@@ -19,8 +20,11 @@ class App {
   }
 
   usePublic(req, res) {
-    const { protocol, url } = req;
-    const { pathname } = new URL(`${protocol}://${url}`);
+    const { url } = req;
+    const protocol = req.socket.encrypted ? 'https' : 'http';
+    const headers = new Headers(req.headers);
+    const host = headers.get('host');
+    const { pathname } = new URL(`${protocol}://${host}${url}`);
     const filePath = path.join(process.cwd(), 'docs', pathname);
     try {
       const buf = fs.readFileSync(filePath);
@@ -35,7 +39,8 @@ class App {
     const ts = new Date().toLocaleString();
     const progress = () => {
       const remoteIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-      const { protocol, method, url } = req;
+      const { method, url } = req;
+      const protocol = req.socket.encrypted ? 'https' : 'http';
       const reqHHeaders = JSON.stringify(req.headers);
       logger.info({
         ts, remoteIp, protocol, method, url, headers: reqHHeaders,
@@ -53,18 +58,21 @@ class App {
 
   router(req, res) {
     const method = req.method.toLowerCase();
-    const { protocol, url } = req;
-    const { pathname, searchParams } = new URL(`${protocol}://${url}`);
+    const { url } = req;
+    const protocol = req.socket.encrypted ? 'https' : 'http';
+    const headers = new Headers(req.headers);
+    const host = headers.get('host');
+    const { pathname, searchParams } = new URL(`${protocol}://${host}${url}`);
     const route = `${method} ${pathname}`;
     silent({ route, searchParams });
     if (route === 'get /') {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end(Object.entries(req.headers).join('\n'));
+      res.end(Array.from(headers.entries()).join('\n'));
       return;
     }
     if (route === 'post /') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(req.headers));
+      res.end(JSON.stringify(Array.from(headers.entries())));
       return;
     }
     this.notfoundHandler(req, res);
