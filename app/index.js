@@ -8,9 +8,10 @@ const silent = () => undefined;
 
 class App {
   useHeader(req, res) {
-    const headers = new Headers(req.headers);
     const protocol = req.socket.encrypted ? 'https' : 'http';
-    const origin = headers.get('origin') || `${protocol}://${headers.get('host')}`;
+    const headers = new Headers(req.headers);
+    const host = headers.get('host');
+    const origin = headers.get('origin') || `${protocol}://${host}`;
     res.setHeader('ETag', 'false');
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, HEAD');
@@ -41,7 +42,8 @@ class App {
       const remoteIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
       const { method, url } = req;
       const protocol = req.socket.encrypted ? 'https' : 'http';
-      const reqHHeaders = JSON.stringify(req.headers);
+      const headers = new Headers(req.headers);
+      const reqHHeaders = JSON.stringify(headers);
       logger.info({
         ts, remoteIp, protocol, method, url, headers: reqHHeaders,
       });
