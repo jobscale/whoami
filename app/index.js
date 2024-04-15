@@ -37,15 +37,19 @@ class App {
   }
 
   useLogging(req, res) {
-    const ts = new Date().toLocaleString();
+    const ts = new Date().toISOString();
     const progress = () => {
       const remoteIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
       const { method, url } = req;
       const protocol = req.socket.encrypted ? 'https' : 'http';
       const headers = new Headers(req.headers);
-      const reqHHeaders = JSON.stringify(headers);
+      const host = headers.get('host');
       logger.info({
-        ts, remoteIp, protocol, method, url, headers: reqHHeaders,
+        ts,
+        req: JSON.stringify({
+          remoteIp, protocol, host, method, url,
+        }),
+        headers: JSON.stringify(Object.fromEntries(headers.entries())),
       });
     };
     progress();
@@ -69,12 +73,12 @@ class App {
     silent({ route, searchParams });
     if (route === 'get /') {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end(Array.from(headers.entries()).join('\n'));
+      res.end(Array.from(headers.entries()).map(([key, value]) => `${key}: ${value}`).join('\n'));
       return;
     }
     if (route === 'post /') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(Array.from(headers.entries())));
+      res.end(JSON.stringify(Object.fromEntries(headers.entries())));
       return;
     }
     this.notfoundHandler(req, res);
