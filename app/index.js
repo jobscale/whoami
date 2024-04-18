@@ -63,7 +63,7 @@ class App {
   }
 
   router(req, res) {
-    const method = req.method.toLowerCase();
+    const method = req.method.toUpperCase();
     const { url } = req;
     const protocol = req.socket.encrypted ? 'https' : 'http';
     const headers = new Headers(req.headers);
@@ -71,12 +71,12 @@ class App {
     const { pathname, searchParams } = new URL(`${protocol}://${host}${url}`);
     const route = `${method} ${pathname}`;
     silent({ route, searchParams });
-    if (route === 'get /') {
+    if (route === 'GET /') {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
       res.end(Array.from(headers.entries()).map(([key, value]) => `${key}: ${value}`).join('\n'));
       return;
     }
-    if (route === 'post /') {
+    if (route === 'POST /') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(Object.fromEntries(headers.entries())));
       return;
