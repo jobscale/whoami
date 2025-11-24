@@ -2,21 +2,21 @@
   "name": "whoami",
   "version": "0.0.2",
   "description": "who am i",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node .",
-    "lint": "eslint .",
+    "lint": "eslint",
     "test": "npm run lint"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jobscale/logger": "^0.4.0",
-    "http-errors": "^2.0.0"
+    "@jobscale/logger": "^0.10.1",
+    "http-errors": "^2.0.1"
   },
   "devDependencies": {
-    "eslint": "^8.57.0",
-    "eslint-config-airbnb-base": "^15.0.0"
+    "eslint": "^9.39.1"
   }
 }
