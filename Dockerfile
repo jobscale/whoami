@@ -1,4 +1,4 @@
-FROM node:lts-tixie-slim
+FROM node:lts-trixie-slim
 WORKDIR /home/node
 USER node
 COPY --chown=node:staff package.json .
