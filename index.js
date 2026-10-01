@@ -1,5 +1,5 @@
 import http from 'http';
-import { logger } from '@jobscale/logger';
+import { logger } from '@jobscale/create-logger';
 import { app, errorHandler } from './app/index.js';
 
 const PORT = process.env.PORT || 3000;

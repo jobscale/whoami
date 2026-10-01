@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import mime from 'mime';
 import createHttpError from 'http-errors';
-import { logger } from '@jobscale/logger';
+import { logger } from '@jobscale/create-logger';
 
 const { XDG_SESSION_DESKTOP } = process.env;
 
